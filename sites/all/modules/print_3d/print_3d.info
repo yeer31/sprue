@@ -1,0 +1,6 @@
+name = Print 3d
+description = provides core print3d data handlers.
+core = 7.x
+
+configure = admin/config/content/print_3d
+

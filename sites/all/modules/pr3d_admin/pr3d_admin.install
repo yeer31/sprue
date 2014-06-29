@@ -1,0 +1,43 @@
+<?php
+
+
+function pr3d_admin_schema()
+{
+	$schema = array();
+
+	$schema['print3d_prod_sold_by'] = array(
+		'description' => 'Links between Products and the Companies that sell them (using Node ids)',
+		'fields' => array(
+
+			'id' => array(
+				'type' => 'int',
+				'unsigned' => true,
+				'not null' => true,
+				'default' => 0,
+				'description' => 'a unique id',
+			),
+	
+			'com_node_id' => array(
+				'type' => 'int',
+				'unsigned' => true,
+				'not null' => true,
+				'description' => 'The Company Node ID',
+			),
+	
+			'prod_node_id' => array(
+				'type' => 'int',
+				'unsigned' => true,
+				'not null' => true,
+				'description' => 'The Product Node ID',
+			),
+		),
+		'primary key' => array('id'),
+	);
+
+	return $schema;
+}
+
+function pr3d_admin_update_7000()
+{
+	drupal_install_schema('pr3d');
+}

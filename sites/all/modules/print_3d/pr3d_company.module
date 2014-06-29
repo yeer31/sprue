@@ -1,0 +1,17 @@
+ <?php
+
+function pr3d_company_block_info()
+{
+	$blocks['print_3d'] = array(
+		'info' => t('Print 3D Company'), //The name that will appear in the block list.
+		'cache' => DRUPAL_CACHE_PER_ROLE, //Default
+	);
+	return $blocks;
+}
+
+function pr3d_company_block_view($delta = '')
+{
+	$block['subject'] = t('Print 3D Company');
+	$block['content'] = 'Wibble';
+	return $block;
+}

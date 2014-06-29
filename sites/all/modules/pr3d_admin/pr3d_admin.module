@@ -1,0 +1,24 @@
+<?php
+
+function pr3d_admin_menu()
+{
+	$items = array();
+	$items['pr3d_admin/sells'] = array(
+		'title' => 'Admin - Who Sells What?',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('pr3d_admin_sells'),
+		'access arguments' => array('access content'),
+		'file' => 'pr3d_admin.sells.inc',
+		'weight' => 1,
+	);
+
+	$items['pr3d_admin_prodwho'] = array(
+		'title' => 'xxx',
+		'page callback' => 'pr3d_admin_prodwho/%',
+		'access arguments' => array('access content'),
+		'file' => 'pr3d_admin.sells.inc',
+		'weight' => 0,
+	);
+
+	return $items;
+}

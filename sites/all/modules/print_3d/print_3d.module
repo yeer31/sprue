@@ -1,0 +1,176 @@
+<?php
+
+//-------------------------------------------------------------------------------
+function print_3d_node_view($node, $view_mode, $lang)
+{
+	switch($node->type)
+	{
+		//-------------------------------------------------------
+		case 'pr3d_company':
+			//krumo($node);
+		break;
+		//-------------------------------------------------------
+		case 'pr3d_printer':
+		// substitute manuf id for actual node title
+			$mm = $node->field_manufacturer['und'][0]['value'];
+			if( $mm > 0)
+			{
+				$mnode = node_load($mm);
+				$node->content['field_manufacturer']['#formatter'] = 'text_default';
+				$node->content['field_manufacturer'][0]['#markup'] = $mnode->title;
+			}
+			//krumo($node);
+		break;
+
+
+	}
+}
+
+
+//-------------------------------------------------------------------------------
+function print_3d_menu()
+{
+	$items = array();
+	$items['hardware'] = array(
+			'title' => t('Hardware'),
+			'page callback' => 'print_3d_hardware_top',
+			'access arguments' => array('access content')
+	);
+	
+	$items['consumables'] = array(
+			'title' => t('Consumables'),
+			'page callback' => 'print_3d_consumables_top',
+			'access arguments' => array('access content')
+	);
+
+	$items['manufacturers'] = array(
+			'title' => t('Manufacturers'),
+			'page callback' => 'print_3d_manufacturers_top',
+			'access arguments' => array('access content')
+	);
+
+	$items['shops'] = array(
+			'title' => t('Shops'),
+			'page callback' => 'print_3d_shops_top',
+			'access arguments' => array('access content')
+	);
+	
+	
+	return $items;
+}
+
+//-------------------------------------------------------------------------------
+function print_3d_manufacturers_top()
+{
+}
+
+//-------------------------------------------------------------------------------
+function print_3d_shops_top()
+{
+}
+
+
+//-------------------------------------------------------------------------------
+function print_3d_hardware_top()
+{
+	$con = array();
+
+	$nodes = db_select('node','n')
+		->condition('type','pr3d_printer')
+		->fields('n', array('nid','title'))
+		->execute()
+		->fetchAll();
+
+
+	$con['basiclist'] = array(
+		'#theme' => 'item_list',
+		'#title' => t('Types of Hardware we cover here:'),
+		'#items' => array('3D Printers','3D Scanners','Recyclers'),
+	);
+
+	$imgvar = array(
+		'path' => 'http://placekitten.com/300/300',
+		'alt' => t('Kitten'),
+		'title' => t('Moggie'),
+	);
+
+	$con['themepic'] = array(
+		'#type' => 'markup',
+		'#markup' => theme('image',$imgvar),
+	);
+
+	return $con;
+}
+
+//-------------------------------------------------------------------------------
+function print_3d_consumables_top()
+{
+	$con = array();
+	$con['raw_markup'] = array(
+		'#type' => 'markup',
+		'#markup' => '<b>Plastic Filament</b><br><b>Bananas</b><br>',
+	);
+	return $con;
+}
+
+//-------------------------------------------------------------------------------
+function print_3d_hardware_type($type)
+{
+	$nodes = db_select('node','n')
+		->condition('type','pr3d_'.$type)
+		->fields('n', array('nid','title'))
+		->execute()
+		->fetchAll();
+
+	$con = array();
+	
+	foreach( $nodes as $nid => $node)
+	{
+		$con['item_'.$nid] = array(
+			'#type' => 'markup',
+			'#markup' => '<a href="/node/'.$node->nid.'">'.$node->title.'</a><br>',
+		);
+	}
+	return $con;
+}
+
+
+//-------------------------------------------------------------------------------
+
+function print_3d_theme( $existing, $type, $theme, $path)
+{
+	return array(
+		'pr3d_printer_node_form' => array(
+			'render element' => 'form',
+			'template' => 'pr3d-printer-node-form',
+			'path' => drupal_get_path('module','print_3d'),
+		)
+	);
+}
+
+
+/**
+ * Preprocessor for theme('article_node_form').
+*/
+function template_preprocess_pr3d_printer_node_form(&$variables)
+{
+	$nodes = db_select('node','n')
+		->condition('type','pr3d_company')
+		->fields('n', array('nid','title'))
+		->execute()
+		->fetchAll();
+
+	//dsm($nodes);
+	$options = array(0 => '- Unknown -');
+	foreach($nodes as $n)
+		$options[ $n->nid ] = $n->title;
+
+	$variables['form']['field_manufacturer']['und']['#options'] 			= $options;
+
+	krumo($variables);
+}
+
+function pr3d_printer_node_presave($node)
+{
+	dsm($node);
+}
