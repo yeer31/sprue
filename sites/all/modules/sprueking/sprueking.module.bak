@@ -1,0 +1,501 @@
+<?php
+
+//==================================== NODE HANDLERS ============================
+
+//-------------------------------------------------------------------------------
+function sprueking_node_view($node, $view_mode, $lang)
+{
+	//krumo($node);
+	//krumo($view_mode);
+	switch($node->type)
+	{
+		//-------------------------------------------------------
+		case 'foo':
+			//krumo($node);
+		break;
+		//-------------------------------------------------------
+		case 'sk_product':
+			
+			// substitute manuf id for actual node title
+			$mm = $node->field_sk_manufacturer_id['und'][0]['value'];
+			if( $mm > 0)
+			{
+				$mnode = node_load($mm);
+				$node->field_sk_manufacturer_id['und'][0]['value'] = $mnode->title;
+				//$node->content['field_sk_manufacturer_id']['#formatter'] = 'text_default';
+				//$node->content['field_sk_manufacturer_id'][0]['#markup'] = $mnode->title;
+			}
+
+			$mm = $node->field_sk_weight['und'][0]['value'];
+			if( $mm == 0.0)
+			{
+				$node->field_sk_weight = null;
+			}
+
+			switch( $node->field_sk_product_type)
+			{
+				case 'printer3d':
+					$node->field_sk_outputs_stl = null;
+					$node->field_3dservice_type = null;
+					break;
+				case 'scanner3d':
+				case 'consumable':
+				case 'recycler':
+					$node->field_3dservice_type = null;
+					break;
+				case 'software':
+				case 'service':
+					$node->field_sk_weight = null;
+					$node->field_sk_dimensions = null;
+					break;
+			}
+
+		break;
+	}
+}
+
+//-------------------------------------------------------------------------------
+function product_basics_panel_views_pre_render(&$view)
+{
+	krumo($view);
+	//product_basics_panel
+}
+
+//==================================================== BLOCK HANDLERS ==================================
+
+//-------------------------------------------------------------------------------
+function sprueking_block_info()
+{
+	$blocks = array();
+  $blocks['SKTEST'] = array(
+    'info' => t('SK: TEST BLOCK'),
+  );
+  
+  $blocks['SKSubMenu'] = array(
+    'info' => t('SK: SubMenu'),
+  );
+
+  $blocks['SKFullPromo'] = array(
+    'info' => t('SK: Full Promo'),
+  );
+
+  $blocks['SKHalfPromo'] = array(
+    'info' => t('SK: Half Promo'),
+  );
+  
+  $blocks['SKPromoColumn'] = array(
+    'info' => t('SK: Promo Column'),
+  );
+
+  $blocks['SKDirectoryIcons'] = array(
+    'info' => t('SK: Directory Icons Block'),
+  );
+
+  $blocks['SKFooterBlock'] = array(
+    'info' => t('SK: Footer Block'),
+  );
+
+  $blocks['SKNewsBig'] = array(
+    'info' => t('SK: Big News Block'),
+  );
+
+  $blocks['SKNewsSmall'] = array(
+    'info' => t('SK: Small News Block'),
+  );
+
+  return $blocks;
+}
+
+//-------------------------------------------------------------------------------
+function sprueking_block_view($delta='', $extras=null)
+{
+	$block = array();
+	switch($delta)
+	{
+		case 'SKTEST':
+			$block['subject'] = '';
+			$block['content'] = 'SK Test Text';
+		break;
+
+		case 'SKNewsBig':
+			$block['subject'] = '';
+			$block['content'] = _skb_SKNewsBig($extras);
+		break;
+
+		case 'SKNewsSmall':
+			$block['subject'] = '';
+			$block['content'] = _skb_SKNewsSmall($extras);
+		break;
+
+		case 'SKFooterBlock':
+			$block['subject'] = '';
+			$block['content'] = _skb_SKFooterBlock();
+		break;
+
+		case 'SKSubMenu':
+			$block['subject'] = '';
+			$block['content'] = _skb_SKSubMenu();
+		break;
+
+		case 'SKDirectoryIcons':
+			$block['subject'] = '';
+			$block['content'] = _skb_SKDirectoryIcons();
+		break;
+
+		case 'SKFullPromo':
+			$block['subject'] = '';
+			$block['content'] = _skb_SKFullPromo($extras);
+		break;
+
+		case 'SKHalfPromo':
+			$block['subject'] = '';
+			$block['content'] = _skb_SKHalfPromo($extras);
+		break;
+
+		case 'SKPromoColumn':
+			$block['subject'] = '';
+			$block['content'] = _skb_SKPromoColumn($extras);
+		break;
+
+	}
+	return $block;
+}
+
+//--------------------------------------------------- Helpers -------------------------------------------
+
+//-------------------------------------------------------------------------------
+function _sk_makefancyimage($img, $text = '')
+{
+	$output  = '<div class="sk_fancyimage_container" style="background-image:url('.$img.')">';
+	$output .= '<div class="sk_img_float_text"><p>';
+	$output .= $text;
+	$output .= '</p></div>';
+	$output .= '<div class="sk_float_mini">&nbsp</div>';
+	$output .= '</div>';
+  return $output;
+}
+
+//-------------------------------------------------------------------------------
+function _sk_make_menua($k, $v, $isbig)
+{
+	$o = '<td class="sk_submenu_menu_left'.($isbig?'':' sk_thin').'">';
+	$o .= '<a class="sk_submenu_text" href="/'.$v.'">';
+	$o .= $k;
+	$o .= '</a></td>';
+	return $o;
+}
+
+//-------------------------------------------------------------------------------
+function _sk_make_menu($k, $v, $isbig)
+{
+	$o = '<td class="sk_submenu_menu'.($isbig?' sk_active':'').'">';
+	$o .= '<a class="sk_submenu_text" href="/'.$v.'">';
+	$o .= $k;
+	$o .= '</a></td>';
+	return $o;
+}
+
+//--------------------------------------------------- INTERNAL BLOCKS -------------------------------------------
+
+//-------------------------------------------------------------------------------
+function _skb_SKNewsBig($nodeid)
+{
+	$article['date'] = '25 Sept 2013';
+	$article['content_summary'] = 'lorem ipsum went down to the shops and bought some tea bags.  That was two weeks ago...';
+	$article['comment_count'] = '22';
+	$imgdir = '/sites/default/files/pictures/';
+
+	$output  = '<div class="sk_news_container">';
+	$output .= _sk_makefancyimage($imgdir.'dummy.jpg','Hello from a News Article');
+	$output .= '<div>';
+
+	$output .= '<div class="sk_news_article">';
+	$output .= '<strong>'.$article['date'].'</strong> &nbsp; ';
+	$output .= $article['content_summary'];
+	$output .= '<br><b><a href="">Read More &raquo;</a></b>';
+	$output .= '&nbsp; <span class="sk_com_count">'.$article['comment_count'].'</span>';
+	$output .= '</div>';
+
+	$output .= '<div class="sk_social_shares">';
+	$output .= '<a href=""><img src="">Twitter</a><br>';
+	$output .= '<a href=""><img src="">LinkedIn</a><br>';
+	$output .= '<a href=""><img src="">Google+</a><br>';
+	$output .= '</div>';
+
+	$output .= '</div>';
+	$output .= '<span style="clear:both"/>';
+  return $output;
+}
+
+//-------------------------------------------------------------------------------
+function _skb_SKNewsSmall($nodeid)
+{
+	$article['date'] = '25 Sept 2013';
+	$article['content_title'] = 'The Tea Bag Wars';
+	$article['content_summary'] = 'lorem ipsum went down to the shops and bought some tea bags.  That was two weeks ago...';
+	$article['comment_count'] = '22';
+	$imgdir = '/sites/default/files/pictures/';
+
+	$output  = '<div class="sk_news_container sk_news_lineover">';
+
+	$output .= '<div class="sk_news_article">';
+
+	$output .= '<div class="sk_newssmall_image">';
+	$output .= '<img src="'.$imgdir.'dummy_sm.jpg'.'">';
+	$output .= '</div>';
+
+	$output .= '<div class="sk_newssmall_content">';
+	$output .= '<b><a href="">'.$article['content_title'].'</a></b><br>';
+	$output .= $article['content_summary'];
+	$output .= '<br>&nbsp; <span class="sk_com_count">'.$article['comment_count'].'</span>';
+	$output .= '</div>';
+
+	$output .= '</div>';
+
+	$output .= '<div class="sk_social_shares">';
+	$output .= '<a href=""><img src="">Twitter</a><br>';
+	$output .= '<a href=""><img src="">LinkedIn</a><br>';
+	$output .= '<a href=""><img src="">Google+</a><br>';
+	$output .= '</div>';
+
+	$output .= '</div>';
+	$output .= '<span style="clear:both"/>';
+
+  return $output;
+}
+
+//-------------------------------------------------------------------------------
+function _skb_SKPromoColumn($extras = null)
+{
+	$output = '';
+	$output .= _skb_SKFullPromo(50);
+	$output .= _skb_SKFullPromo();
+	$output .= _skb_SKHalfPromo(50);
+  return $output;
+}
+
+//-------------------------------------------------------------------------------
+// extras would be the content id of the promo area - puled from the db
+function _skb_SKFullPromo($extras = null)
+{
+	$output = '<div class="sk_full_promo_container">';
+	if($extras)
+	{
+		$node = node_load($extras);
+		
+		$output .= $node->body['und'][0]['value'];
+	}
+	else
+		$output .= 'Some Full Promo here';
+	$output .= '<div class="sk_float_mini">&nbsp;</div>';
+	$output .= '</div>';
+  return $output;
+}
+
+//-------------------------------------------------------------------------------
+function _skb_SKHalfPromo($extras = null)
+{
+	$output = '<div class="sk_half_promo_container">';
+	if($extras)
+	{
+		$node = node_load($extras);		
+		$output .= $node->field_half_content['und'][0]['value'];
+	}
+	else
+		$output .= 'Some Promo here';
+	$output .= '<div class="sk_float_mini"></div>';
+	$output .= '</div>';
+    return $output;
+}
+
+//-------------------------------------------------------------------------------
+function _skb_SKFooterBlock()
+{
+	$imgdir = '/sites/default/files/icons/';
+	$output = '<div class="main-container sk_footer-outer">';
+	$output .= '<div class="span2"><a href="about">About</a></div>';
+	$output .= '<div class="span2">Terms</div>';
+	$output .= '<div class="span2">Contact</div>';
+	$output .= '<div class="span2"></div>';
+	$output .= '<div class="span2">SOCIAL ICONS HERE</div>';
+	$output .= '</div>';
+  return $output;
+}
+
+//-------------------------------------------------------------------------------
+function _skb_SKDirectoryIcons()
+{
+	$imgdir = '/sites/default/files/icons/';
+	$output = '<div class="sk_diricons-outer">';
+	$output .= '<b>Directory</b>';
+	$output .= '<table cellspacing=0 cellpadding=0 class="skdiricons-container"><tr>';
+	$output .= '<td class="skdiriconbox"><a href="catland_3dprinters"><img src="'.$imgdir.'brick2.png" width="48" height="48" /></a></td>';
+	$output .= '<td class="skdiriconbox"><a href="catland_consumables"><img src="'.$imgdir.'overflow.png" width="48" height="48" /></a></td>';
+	$output .= '<td class="skdiriconbox"><a href="catland_3dscanners"><img src="'.$imgdir.'scanner.png" width="48" height="48" /></a></td>';
+	$output .= '<td class="skdiriconbox"><a href="catland_recyclers"><img src="'.$imgdir.'recycle.png" width="48" height="48" /></a></td>';
+	$output .= '</tr><tr>';
+	$output .= '<td class="skdiriconbox"><a href="catland_software"><img src="'.$imgdir.'software.png" width="48" height="48" /></a></td>';
+	$output .= '<td class="skdiriconbox"><a href="catland_sellers"><img src="'.$imgdir.'cart.png" width="48" height="48" /></a></td>';
+	$output .= '<td class="skdiriconbox"><a href="catland_services"><img src="'.$imgdir.'topic.png" width="48" height="48" /></a></td>';
+	$output .= '<td class="skdiriconbox"><a href="catland_manufacturers"><img src="'.$imgdir.'factory.png" width="48" height="48" /></a></td>';
+	$output .= '</tr></table>';
+	$output .= '</div>';
+  return $output;
+}
+
+//-------------------------------------------------------------------------------
+function _skb_SKSubMenu()
+{
+global $user;
+	$node = menu_get_object();
+	$output = null;
+	if($node)
+	{
+		$c1 = 'output';
+		$c2 = '3d printer';
+		$pa = drupal_get_path_alias();
+		$allowsubmenu = false;
+	
+		if($pa=='news')
+			$allowsubmenu = true;
+
+		switch($node->type)
+		{
+		case 'sk_company':
+			$allowsubmenu = true;
+			break;
+		case 'sk_product':
+			$allowsubmenu = true;
+			$c1 = $node->field_sk_dir_category['und'][0]['value'];
+			if($node->field_sk_dir_sub_category)
+				$c2 = $node->field_sk_dir_sub_category['und'][0]['value']; 
+			break;
+		case 'sk_directory_page':
+			$allowsubmenu = true;
+			$c1 = $node->field_sk_dir_category['und'][0]['value'];
+			if($node->field_sk_dir_sub_category)
+				$c2 = $node->field_sk_dir_sub_category['und'][0]['value'];
+			if($pa=='catland_sellers')  $c1='';
+			if($pa=='catland_services')  $c1='';
+			if($pa=='catland_manufacturers')  $c1='';
+			break;
+		}
+		$output = '<table class="sk_submenu_container"><tr>';
+		$mm = '';
+		if(	$allowsubmenu )
+		{
+			$mm .= _sk_make_menu('Printers', 'catland_3dprinters', ($c2=='3d printer'));
+			$mm .= _sk_make_menu('Consumables', 'catland_consumables', ($c2=='consumable'));
+			$mm .= _sk_make_menu('Scanners', 'catland_3dscanners', ($c2=='3d scanner'));
+			$mm .= _sk_make_menu('Software', 'catland_software', ($c2=='software'));
+			$mm .= _sk_make_menu('Recycling', 'catland_recyclers', ($c2=='recycling'));
+			$mm .= _sk_make_menu('Information', 'catland_information', ($c2=='information'));
+			$mm .= _sk_make_menu('Sellers', 'catland_sellers', ($c2=='seller'));
+			$mm .= _sk_make_menu('Services', 'catland_services', ($c2=='service'));
+			$mm .= _sk_make_menu('Manufacturers', 'catland_manufacturers', ($c2=='manufacturer'));
+		}
+		if( $user->uid )
+			$mm .= _sk_make_menu('Logout', 'user/logout', false);
+		else
+			$mm .= _sk_make_menu('Login/Register', 'user/login', false);
+	
+		$output .= $mm;
+			
+		$output .= '</tr></table>';
+	}
+  return $output;
+}
+
+/*
+//-------------------------------------------------------------------------------
+function _sprueking_
+{
+}
+*/
+
+//--------------------------------------------------- Playing around -------------------------------------------
+
+
+//-------------------------------------------------------------------------------
+function sprueking_taxolist($vid)
+{
+	return render(_sprueking_taxolist($vid));
+}
+
+//-------------------------------------------------------------------------------
+function _sprueking_taxolist($vid, $parent = NULL)
+{
+	if (empty($parent)) { $parent = 0; }
+  $items = array();
+  $terms = taxonomy_get_tree($vid, $parent);
+  //krumo($terms);
+  foreach ( $terms as $term )
+  {
+  	$count = db_result(db_query("SELECT COUNT(nid) FROM {term_node} WHERE tid = %d", $term->tid));
+		$items[] =  l($term->name, "taxonomy/term/$term->tid") . " ($count)" . _sprueking_taxolist($vid, $term->tid);
+	}
+	if ( count($items) )
+	{
+		return theme('item_list', $items);
+	}
+}
+
+//-------------------------------------------------------------------------------
+function sprueking_listtags($tlist, $maxcount=6)
+{
+	$tags = '';
+	foreach($tlist as $t)
+	{
+		$tags .= "'$t',";
+	}
+	if(!empty($tags))
+	{
+		$tags = substr($tags,0,-1);
+		// maximum number of items to show:
+		$count = $maxcount;
+		
+		print $tags;
+		/*
+		$result = db_query_range(db_rewrite_sql("SELECT n.nid, n.title 
+			FROM {node} n 
+			INNER JOIN {term_node} tn ON n.nid = tn.nid
+			INNER JOIN {term_data} td ON tn.tid = td.tid
+			WHERE td.name IN (%s) AND 
+			n.status = 1
+			ORDER BY n.created DESC"),$tags,0,$count);
+		
+		while ($node = db_fetch_object($result))
+		{
+		  $items[] = l($node->title, 'node/'. $node->nid); 
+		}
+		$output = theme('item_list', $items);
+		print $output;
+		*/
+	}
+}
+
+//========= NOT WORKING ============================
+
+//-------------------------------------------------------------------------------
+function sprueking_similar_callback()
+{
+	return array('render'=>'FOO');
+}
+
+//-------------------------------------------------------------------------------
+function sprueking_qt_tab_callback($type = 'normal')
+{
+  //$content = get_my_content_from_somewhere();
+  $content = array('text'=>'FOO');
+  if ($type == 'normal') 
+  {
+    return $content;
+  }
+  else 
+  {
+    $response = quicktabs_ajax_wrap($content);
+    drupal_json(array('status' => 0, 'data' => $response));
+  }
+}
+
+

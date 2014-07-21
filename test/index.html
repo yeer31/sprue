@@ -1,0 +1,109 @@
+<html>
+
+<head>
+
+<script src="../misc/jquery.js"></script>
+<link rel="stylesheet" href="main.css" type="text/css">
+</head>
+
+<script>
+
+var current_context = '';
+
+var menu_info = [];
+menu_info['admin_task'] = {'title':'Admin Task','type':'h'};
+menu_info['home'] = {'title':'Home','type':'m','form':'home'};
+menu_info['my_account'] = {'title':'My Account','type':'m','form':'company_add'};
+menu_info['change_pass'] = {'title':'Change Password','type':'m','form':'foo'};
+menu_info['info_man'] = {'title':'Information Management','type':'h'};
+menu_info['add_info'] = {'title':'Additional Information','type':'m','form':''};
+menu_info['social'] = {'title':'Social Links','type':'m','form':''};
+menu_info['prod_list'] = {'title':'Product Listings','type':'h'};
+menu_info['manage_list'] = {'title':'Manage Listings','type':'m','form':'product_list'};
+menu_info['add_printer'] = {'title':'Add Printer Listng','type':'m','form':''};
+menu_info['add_cons'] = {'title':'Add Consumable Listng','type':'m','form':''};
+menu_info['add_scanner'] = {'title':'Add Scanner Listng','type':'m','form':''};
+menu_info['add_soft'] = {'title':'Add Software Listng','type':'m','form':''};
+menu_info['add_recyc'] = {'title':'Add Recycler Listng','type':'m','form':''};
+menu_info['add_info'] = {'title':'Add Information Listng','type':'m','form':''};
+
+//menu_info[''] = {'id':'','title':'','type':'','form':''};
+
+function make_menu()
+{
+	var m = '';
+	for(var cx in menu_info)
+	{
+		if(menu_info[cx].type == 'h')
+			m += '<div id="'+cx+'" class="menu_header">';
+		else
+			m += '<div id="'+cx+'" class="menu_cell">';
+		m += menu_info[cx].title;
+		m += '</div>';
+	}
+	$('#menu-area').html(m);
+}
+
+/* Handle Menu Cell Clicks - sets the context for further operations */
+function menu_click(elem)
+{
+	current_context = this.id;
+	if(menu_info[current_context].form)
+		load_content(menu_info[current_context].form,'Spangwurble');
+}
+
+/* Send the form to the server based on the current context */
+function form_submit()
+{
+	if(menu_info[current_context].form)
+	{
+		// gather all the form data into a json object and ajax it
+		var data = '{';
+		var fc = 0;
+		$('#the-form').find('input').each(function()
+		{
+			data += '"'+this.id + '":"' + this.value +'",';
+			fc ++;
+		});
+		data += '"fc":'+fc+'}';
+		console.log(data);
+	
+		save_form(menu_info[current_context].form,data)
+	}
+}
+
+/* Ajax call to load requested data (eg a form) */
+function load_content(req,data)
+{
+	$('#content').load('jh.php?json={"req":"'+req+'","blah":"'+data+'"}');
+}
+
+/* Ajax call to save form data (and load results) */
+function save_form(frm,data)
+{
+	$('#content').load('jh.php?json={"form":"'+frm+'","data":'+data+'}');
+}
+
+</script>
+
+<body>
+	<div id="main-area" class="main_area">
+	
+		<div id="menu-area" class="menu_area"></div>
+	
+		<div id="content-area" class="">
+		
+			<div id="content" class=""></div>
+		
+		</div>
+	
+	</div>
+
+</body>
+
+<script>
+	make_menu();
+	$('.menu_cell').click(menu_click);
+</script>
+
+</html>

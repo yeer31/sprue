@@ -268,23 +268,25 @@ function _skb_SKNewsSmall($nodeid)
 function _skb_SKPromoColumn($extras = null)
 {
 	$output = '';
+	$output .= _skb_SKFullPromo(50);
 	$output .= _skb_SKFullPromo();
-	$output .= _skb_SKFullPromo();
-	
-	$output .= _skb_SKHalfPromo();
+	$output .= _skb_SKHalfPromo(50);
   return $output;
 }
 
 //-------------------------------------------------------------------------------
+// extras would be the content id of the promo area - pulled from the db
 function _skb_SKFullPromo($extras = null)
 {
 	$output = '<div class="sk_full_promo_container">';
 	if($extras)
 	{
-		$output .= $extras;
+		$node = node_load($extras);
+		
+		$output .= $node->body['und'][0]['value'];
 	}
 	else
-		$output .= 'Some Promo here';
+		$output .= 'Some Full Promo here';
 	$output .= '<div class="sk_float_mini">&nbsp;</div>';
 	$output .= '</div>';
   return $output;
@@ -296,7 +298,8 @@ function _skb_SKHalfPromo($extras = null)
 	$output = '<div class="sk_half_promo_container">';
 	if($extras)
 	{
-		$output .= $extras;
+		$node = node_load($extras);		
+		$output .= $node->field_half_content['und'][0]['value'];
 	}
 	else
 		$output .= 'Some Promo here';

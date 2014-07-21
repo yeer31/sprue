@@ -1,0 +1,7 @@
+<div id="the-form">
+<label>Field 1</label>:<input type="text" name="frm1" id="frm-1"/><br>
+<label>Field 2</label>:<input type="text" name="frm2" id="frm-2"/><br>
+<label>Field 3</label>:<input type="text" name="frm3" id="frm-3"/><br>
+<label>Field 4</label>:<input type="text" name="frm4" id="frm-4"/><br>
+</div>
+<div class="form-elem"><button onclick="form_submit()">xSubmit</button></div>

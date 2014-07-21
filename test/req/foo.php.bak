@@ -1,0 +1,9 @@
+<?php
+
+class Req_foo
+{
+	function process_request($jdat)
+	{
+		return 'FOO Processed: '.$jdat->blah;
+	}
+}
